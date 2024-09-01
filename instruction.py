@@ -1,5 +1,6 @@
 import json
 import pandas as pd
+import random
 from datasets import Dataset
 from typing import List, Dict
 import argparse
@@ -12,16 +13,15 @@ def prepare_dataset_llama3(dataset, instructions=None):
     
     def formatting_prompts_func(examples):
         sys_prompt = "You are a social media expert providing accurate analysis and insights on various types of text data."  
-        instructions_list = instructions
 
         inputs = examples["text"]
         outputs = examples["Emotion_Label"]
         texts = []
 
         for input, output in zip(inputs, outputs):
-            for instruction in instructions_list:
-                text = prompt.format(sys_prompt, instruction, input, output) + EOS_TOKEN
-                texts.append({"instruction": instruction, "text": input, "label": output})
+            instruction = random.choice(instructions)
+            text = prompt.format(sys_prompt, instruction, input, output) + EOS_TOKEN
+            texts.append({"instruction": instruction, "text": input, "label": output})
         return {"output": texts}
 
     dataset = dataset.map(formatting_prompts_func, batched=True, remove_columns=dataset.column_names)
@@ -63,3 +63,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
